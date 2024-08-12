@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'rail_nav_bar_menu_item.dart';
 
@@ -21,12 +22,22 @@ const kNavigationActionWidth = 80.0;
 
 class RailNavBarWidgetState extends State<RailNavBarWidget> {
   OverlayEntry? _overlayEntry;
-  final GlobalKey _hoverKey = GlobalKey();
+  final List<GlobalKey> _hoverKeys = [];
+  bool _isInOverlay = false;
+  Timer? _timer;
+
+  @override
+  void initState() {
+    super.initState();
+    for (int i = 0; i < widget.railNavbarMenuItemsList.length; i++) {
+      _hoverKeys.add(GlobalKey());
+    }
+  }
 
   void _showOverlay(
-      BuildContext context, List<HoverItemConfig> hoverItems, Offset position) {
-    final RenderBox? renderBox =
-        _hoverKey.currentContext?.findRenderObject() as RenderBox?;
+      BuildContext context, List<HoverItemConfig> hoverItems, int index) {
+    final renderBox =
+        _hoverKeys[index].currentContext?.findRenderObject() as RenderBox?;
     if (renderBox == null) {
       return;
     }
@@ -59,24 +70,33 @@ class RailNavBarWidgetState extends State<RailNavBarWidget> {
         top: railActionPositionFromTop,
         child: MouseRegion(
           onEnter: (_) {
-            setState(() {});
+            _isInOverlay = true;
+            _timer?.cancel();
+          },
+          onExit: (_) {
+            _isInOverlay = false;
+            _removeOverlay();
           },
           child: Material(
             color: Colors.transparent,
             child: Container(
               height: containerHeight,
               decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(
-                    color: Colors.black45,
-                  )),
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(
+                  color: Colors.black45,
+                ),
+              ),
               width: 200,
               child: Column(
                 children: hoverItems.map((hoverItem) {
                   return ListTile(
                     title: Text(hoverItem.itemName),
-                    onTap: hoverItem.onTap,
+                    onTap: () {
+                      hoverItem.onTap();
+                      _removeOverlay();
+                    },
                   );
                 }).toList(),
               ),
@@ -90,8 +110,13 @@ class RailNavBarWidgetState extends State<RailNavBarWidget> {
   }
 
   void _removeOverlay() {
-    _overlayEntry?.remove();
-    _overlayEntry = null;
+    if (_isInOverlay) return;
+    _timer = Timer(const Duration(milliseconds: 200), () {
+      if (!_isInOverlay) {
+        _overlayEntry?.remove();
+        _overlayEntry = null;
+      }
+    });
   }
 
   @override
@@ -100,36 +125,39 @@ class RailNavBarWidgetState extends State<RailNavBarWidget> {
       selectedIndex: widget.selectedIndex,
       onDestinationSelected: widget.onItemSelected,
       labelType: NavigationRailLabelType.all,
-      destinations: widget.railNavbarMenuItemsList
-          .map(
-            (item) => NavigationRailDestination(
-              icon: MouseRegion(
-                key: _hoverKey,
+      destinations: widget.railNavbarMenuItemsList.asMap().entries.map(
+        (entry) {
+          int index = entry.key;
+          RailNavbarMenuItem item = entry.value;
+          return NavigationRailDestination(
+            icon: SizedBox(
+              height: kBottomNavigationBarHeight,
+              child: MouseRegion(
+                key: _hoverKeys[index],
                 onEnter: (event) {
+                  setState(() {});
                   if (item.hoverItems != null && item.hoverItems!.isNotEmpty) {
-                    final RenderBox? renderBox = _hoverKey.currentContext
+                    final renderBox = _hoverKeys[index]
+                        .currentContext
                         ?.findRenderObject() as RenderBox?;
                     if (renderBox != null) {
-                      final Offset position =
-                          renderBox.localToGlobal(Offset.zero);
-                      _showOverlay(context, item.hoverItems!, position);
-                    } else {
-                      _removeOverlay();
+                      _showOverlay(context, item.hoverItems!, index);
                     }
-                  } else {
-                    _removeOverlay();
                   }
                 },
-                onExit: (event) => _removeOverlay(),
+                onExit: (event) {
+                  _removeOverlay();
+                },
                 child: GestureDetector(
                   onTap: () => widget.onItemSelected(item.index),
                   child: Icon(item.iconPath),
                 ),
               ),
-              label: Text(item.name),
             ),
-          )
-          .toList(),
+            label: Text(item.name),
+          );
+        },
+      ).toList(),
     );
   }
 }
