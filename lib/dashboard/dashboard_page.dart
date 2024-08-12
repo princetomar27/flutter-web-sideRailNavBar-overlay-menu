@@ -64,6 +64,7 @@ class DashboardScreenState extends State<DashboardScreen> {
       appBar: AppBar(
         title: const Text('Dashboard'),
       ),
+      backgroundColor: Colors.grey,
       body: Row(
         children: [
           RailNavBarWidget(

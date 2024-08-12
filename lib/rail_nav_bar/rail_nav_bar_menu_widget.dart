@@ -43,8 +43,8 @@ class RailNavBarWidgetState extends State<RailNavBarWidget> {
     }
     final globalOffset = renderBox.localToGlobal(Offset.zero);
 
-    const itemHeight = 56.0;
-    const verticalPadding = 4.0;
+    const itemHeight = 50.0;
+    const verticalPadding = 6.0;
     final containerHeight =
         (hoverItems.length * itemHeight) + (2 * verticalPadding);
 
@@ -91,11 +91,51 @@ class RailNavBarWidgetState extends State<RailNavBarWidget> {
               width: 200,
               child: Column(
                 children: hoverItems.map((hoverItem) {
-                  return ListTile(
-                    title: Text(hoverItem.itemName),
-                    onTap: () {
-                      hoverItem.onTap();
-                      _removeOverlay();
+                  bool isHovered = false;
+
+                  return StatefulBuilder(
+                    builder: (context, setState) {
+                      return MouseRegion(
+                        onEnter: (_) {
+                          setState(() {
+                            isHovered = true;
+                          });
+                        },
+                        onExit: (_) {
+                          setState(() {
+                            isHovered = false;
+                          });
+                        },
+                        child: Container(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(8),
+                            color:
+                                isHovered ? Colors.white : Colors.cyan.shade900,
+                            border: Border.all(
+                              color: Colors.cyan.shade900,
+                            ),
+                          ),
+                          margin:
+                              EdgeInsets.symmetric(horizontal: 2, vertical: 2),
+                          child: ListTile(
+                            title: Text(
+                              hoverItem.itemName,
+                              style: TextStyle(
+                                color: isHovered
+                                    ? Colors.cyan.shade900
+                                    : Colors.white,
+                                fontWeight: isHovered
+                                    ? FontWeight.bold
+                                    : FontWeight.w400,
+                              ),
+                            ),
+                            onTap: () {
+                              hoverItem.onTap();
+                              _removeOverlay();
+                            },
+                          ),
+                        ),
+                      );
                     },
                   );
                 }).toList(),
