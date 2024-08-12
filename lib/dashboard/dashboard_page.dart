@@ -1,22 +1,25 @@
 import 'package:flutter/material.dart';
 import 'dashboard_footer_page.dart';
-import 'pages/home_page.dart';
-import 'pages/settings_page.dart';
-import 'rail_nav_bar_menu_item.dart';
-import 'rail_nav_bar_menu_widget.dart';
+import '../pages/home_page.dart';
+import '../pages/settings_page.dart';
+import '../rail_nav_bar/rail_nav_bar_menu_item.dart';
+import '../rail_nav_bar/rail_nav_bar_menu_widget.dart';
 
 class DashboardScreen extends StatefulWidget {
+  const DashboardScreen({super.key});
+
   @override
-  _DashboardScreenState createState() => _DashboardScreenState();
+  DashboardScreenState createState() => DashboardScreenState();
 }
 
-class _DashboardScreenState extends State<DashboardScreen> {
+class DashboardScreenState extends State<DashboardScreen> {
   int _selectedIndex = 0;
 
   final List<Widget> _pages = [
-    HomePage(),
-    SettingsPage(),
-    // Add more pages here
+    const HomePage(),
+    const SettingsPage(),
+    const SettingsSubPage1(),
+    const SettingsSubPage2(),
   ];
 
   @override
@@ -24,42 +27,47 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final List<RailNavbarMenuItem> railNavbarMenuItemsList = [
       RailNavbarMenuItem(
         name: 'Home',
-        iconPath:
-            Icons.home, // Use an icon directly or replace with your icon path
+        iconPath: Icons.home,
         index: 0,
       ),
       RailNavbarMenuItem(
         name: 'Settings',
-        iconPath: Icons
-            .settings, // Use an icon directly or replace with your icon path
+        iconPath: Icons.settings,
         index: 1,
         hoverItems: [
           HoverItemConfig(
             itemName: 'Sub-Settings 1',
             onTap: () {
-              print('Sub settings 1');
+              setState(() {
+                _selectedIndex = 2;
+              });
             },
-            itemRoute: SettingsSubPage1(), // Replace with actual route widget
+            itemRoute: _pages[2],
           ),
           HoverItemConfig(
             itemName: 'Sub-Settings 2',
             onTap: () {
-              print('Sub settings 2');
+              setState(() {
+                _selectedIndex = 3;
+              });
             },
-            itemRoute: SettingsSubPage2(), // Replace with actual route widget
+            itemRoute: _pages[3],
           ),
         ],
       ),
-      // Add more items as needed
     ];
+
+    int mainMenuSelectedIndex =
+        _selectedIndex < railNavbarMenuItemsList.length ? _selectedIndex : 0;
+
     return Scaffold(
       appBar: AppBar(
-        title: Text('Dashboard'),
+        title: const Text('Dashboard'),
       ),
       body: Row(
         children: [
           RailNavBarWidget(
-            selectedIndex: _selectedIndex,
+            selectedIndex: mainMenuSelectedIndex,
             railNavbarMenuItemsList: railNavbarMenuItemsList,
             onItemSelected: (index) {
               setState(() {

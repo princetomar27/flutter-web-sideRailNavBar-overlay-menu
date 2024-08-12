@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
-
-import 'dashboard_page.dart';
+import 'dashboard/dashboard_page.dart';
 
 void main() {
   runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -14,7 +15,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: DashboardScreen(),
+      home: const DashboardScreen(),
     );
   }
 }
