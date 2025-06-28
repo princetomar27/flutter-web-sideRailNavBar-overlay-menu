@@ -43,6 +43,8 @@ class DashboardScreenState extends State<DashboardScreen> {
               });
             },
             itemRoute: _pages[2],
+            backgroundColor: Colors.pink.shade400,
+            prefixIcon: const Icon(Icons.tune, color: Colors.white),
           ),
           HoverItemConfig(
             itemName: 'Sub-Settings 2',
@@ -52,6 +54,11 @@ class DashboardScreenState extends State<DashboardScreen> {
               });
             },
             itemRoute: _pages[3],
+            backgroundColor: Colors.teal.shade400,
+            hoverColor: Colors.cyan,
+            isHoverColorGradient: true,
+            titleTextColor: Colors.white,
+            prefixIcon: const Icon(Icons.security, color: Colors.teal),
           ),
         ],
       ),
